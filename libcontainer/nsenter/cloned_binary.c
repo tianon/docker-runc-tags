@@ -16,9 +16,26 @@
 #include <sys/syscall.h>
 
 #include <linux/magic.h>
-#include <linux/memfd.h>
+
+/* flags for memfd_create(2) (unsigned int), taken from linux/memfd.h */
+#define MFD_CLOEXEC             0x0001U
+#define MFD_ALLOW_SEALING       0x0002U
 
 /* Use our own wrapper for memfd_create. */
+#if !defined(__NR_memfd_create)
+#  ifdef __i386__
+#    define __NR_memfd_create 356
+#  elif __x86_64__
+#    define __NR_memfd_create 319
+#  elif __powerpc64__
+#    define __NR_memfd_create 360
+#  elif __aarch64__
+#    define __NR_memfd_create 279
+#  elif __arm__
+#    define __NR_memfd_create 385
+#  endif
+#endif /* !__NR_memfd_create */
+
 #if !defined(SYS_memfd_create) && defined(__NR_memfd_create)
 #  define SYS_memfd_create __NR_memfd_create
 #endif
